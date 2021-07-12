@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+.idea
+/x64
+/Release
+/Debug
