@@ -2,7 +2,13 @@
 
 #include <Antilatency.InterfaceContract.LibraryLoader.h>
 #include <Antilatency.DeviceNetwork.h>
+#if defined(__linux__)
+#include <dlfcn.h>
+#include <filesystem>
+#endif
 
+#include <thread>
+#include <chrono>
 
 Antilatency::DeviceNetwork::NodeHandle getIdleTrackingNode(Antilatency::DeviceNetwork::INetwork network, Antilatency::Alt::Tracking::ITrackingCotaskConstructor altTrackingCotaskConstructor) {
     // Get all currently connected nodes, that supports alt tracking task.
@@ -24,29 +30,39 @@ Antilatency::DeviceNetwork::NodeHandle getIdleTrackingNode(Antilatency::DeviceNe
 }
 
 int main(int argc, char* argv[]) {
+    if(argc != 3){
+        std::cout << "Wrong arguments. Pass environment data string as first argument and placement data as second.";
+        return 1;
+    }
+	#if defined(__linux__)
+        Dl_info dlinfo;
+        dladdr(reinterpret_cast<void*>(&main), &dlinfo);
+        std::string path = std::filesystem::path(dlinfo.dli_fname).parent_path();
+        std::string libNameADN = path + "/libAntilatencyDeviceNetwork.so";
+        std::string libNameTracking = path + "/libAntilatencyAltTracking.so";
+        std::string libNameEnvironmentSelector = path + "/libAntilatencyAltEnvironmentSelector.so";
+	#else
+		std::string libNameADN = "AntilatencyDeviceNetwork";
+		std::string libNameTracking = "AntilatencyAltTracking";
+		std::string libNameEnvironmentSelector = "AntilatencyAltEnvironmentSelector";
+	#endif
+	
     // Load the Antilatency Device Network library
-    Antilatency::DeviceNetwork::ILibrary deviceNetworkLibrary = Antilatency::InterfaceContract::getLibraryInterface<Antilatency::DeviceNetwork::ILibrary>("AntilatencyDeviceNetwork");
+    Antilatency::DeviceNetwork::ILibrary deviceNetworkLibrary = Antilatency::InterfaceContract::getLibraryInterface<Antilatency::DeviceNetwork::ILibrary>(libNameADN.c_str());
     if (deviceNetworkLibrary == nullptr) {
         std::cout << "Failed to get Antilatency Device Network Library" << std::endl;
         return 1;
     }
 
     // Load the Antilatency Alt Tracking library
-    Antilatency::Alt::Tracking::ILibrary altTrackingLibrary = Antilatency::InterfaceContract::getLibraryInterface<Antilatency::Alt::Tracking::ILibrary>("AntilatencyAltTracking");
+    Antilatency::Alt::Tracking::ILibrary altTrackingLibrary = Antilatency::InterfaceContract::getLibraryInterface<Antilatency::Alt::Tracking::ILibrary>(libNameTracking.c_str());
     if (altTrackingLibrary == nullptr) {
         std::cout << "Failed to get Antilatency Alt Tracking Library" << std::endl;
         return 1;
     }
 
-    // Load the Antilatency Storage Client library
-    Antilatency::StorageClient::ILibrary storageClientLibrary = Antilatency::InterfaceContract::getLibraryInterface<Antilatency::StorageClient::ILibrary>("AntilatencyStorageClient");
-    if (altTrackingLibrary == nullptr) {
-        std::cout << "Failed to get Antilatency Storage Client Library" << std::endl;
-        return 1;
-    }
-
     // Load the Antilatency Alt Environment Selector library
-    Antilatency::Alt::Environment::Selector::ILibrary environmentSelectorLibrary = Antilatency::InterfaceContract::getLibraryInterface<Antilatency::Alt::Environment::Selector::ILibrary>("AntilatencyAltEnvironmentSelector");
+    Antilatency::Alt::Environment::Selector::ILibrary environmentSelectorLibrary = Antilatency::InterfaceContract::getLibraryInterface<Antilatency::Alt::Environment::Selector::ILibrary>(libNameEnvironmentSelector.c_str());
     if (altTrackingLibrary == nullptr) {
         std::cout << "Failed to get Antilatency Alt Environment Selector Library" << std::endl;
         return 1;
@@ -60,20 +76,12 @@ int main(int argc, char* argv[]) {
         std::cout << "Failed to create Antilatency Device Network" << std::endl;
         return 1;
     }
-
     std::cout << "Antilatency Device Network created" << std::endl;
 
-    // Get local storage. You can skip this step using the hardcoded environment and placement codes.
-    Antilatency::StorageClient::IStorage localStorage = storageClientLibrary.getLocalStorage();
-    if (localStorage == nullptr) {
-        std::cout << "Failed to get local storage. Is Antilatency Service installed?" << std::endl;
-        return 1;
-    }
-
-    // Get environment serialized data from the storage.
-    const std::string environmentData = localStorage.read("environment", "default");
-    // Get placement serialized data from the storage.
-    const std::string placementData = localStorage.read("placement", "default");
+    // Get environment serialized data.
+    const std::string environmentData = argv[1];
+    // Get placement serialized data.
+    const std::string placementData = argv[2];
 
     // Create environment object from the serialized data.
     const Antilatency::Alt::Environment::IEnvironment environment = environmentSelectorLibrary.createEnvironment(environmentData);
@@ -130,18 +138,17 @@ int main(int argc, char* argv[]) {
                         std::cout << "\t\tStage: " << static_cast<int32_t>(state.stability.stage) << std::endl;
                         std::cout << "\t\tValue: " << state.stability.value << std::endl;
                         
-                        std::cout << "\tVelocity: x: " << state.velocity.x << ", y: " << state.velocity.y << ", z: " << state.velocity.z << std::endl;
+                        std::cout << "\tVelocity:" << state.velocity.x << ", y: " << state.velocity.y << ", z: " << state.velocity.z << std::endl;
 
-                        std::cout << "\tLocalAngularVelocity: x: " << state.localAngularVelocity.x << ", y: " << state.localAngularVelocity.y << ", z: " << state.localAngularVelocity.z << std::endl << std::endl;
+                        std::cout << "\tLocalAngularVelocity:" << state.localAngularVelocity.x << ", y: " << state.localAngularVelocity.y << ", z: " << state.localAngularVelocity.z << std::endl << std::endl;
                         
-                        Sleep(500);
+                        std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(500));
                     }
                 } else {
                     std::cout << "Failed to start tracking task on node" << std::endl;
                 }
             }
         }
-        Yield();
     }
     
     return 0;
