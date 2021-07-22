@@ -130,9 +130,9 @@ int main(int argc, char* argv[]) {
                         std::cout << "\t\tStage: " << static_cast<int32_t>(state.stability.stage) << std::endl;
                         std::cout << "\t\tValue: " << state.stability.value << std::endl;
                         
-                        std::cout << "\tVelocity:" << state.velocity.x << ", y: " << state.velocity.y << ", z: " << state.velocity.z << std::endl;
+                        std::cout << "\tVelocity: x: " << state.velocity.x << ", y: " << state.velocity.y << ", z: " << state.velocity.z << std::endl;
 
-                        std::cout << "\tLocalAngularVelocity:" << state.localAngularVelocity.x << ", y: " << state.localAngularVelocity.y << ", z: " << state.localAngularVelocity.z << std::endl << std::endl;
+                        std::cout << "\tLocalAngularVelocity: x: " << state.localAngularVelocity.x << ", y: " << state.localAngularVelocity.y << ", z: " << state.localAngularVelocity.z << std::endl << std::endl;
                         
                         Sleep(500);
                     }
