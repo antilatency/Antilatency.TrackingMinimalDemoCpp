@@ -140,7 +140,7 @@ int main(int argc, char* argv[]) {
                         
                         std::cout << "\tVelocity:" << state.velocity.x << ", y: " << state.velocity.y << ", z: " << state.velocity.z << std::endl;
 
-                        std::cout << "\tLocalAngularVelocity:" << state.localAngularVelocity.x << ", y: " << state.localAngularVelocity.y << ", z: " << state.localAngularVelocity.z << std::endl << std::endl;
+                        std::cout << "\tLocalAngularVelocity: x:" << state.localAngularVelocity.x << ", y: " << state.localAngularVelocity.y << ", z: " << state.localAngularVelocity.z << std::endl << std::endl;
                         
                         std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(500));
                     }
