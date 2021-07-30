@@ -3,9 +3,9 @@
 ## Overview
 This project provides minimal demo of Antilatency tracking.
 Structure: 
-./AntilatencySdk/Api contains headers for Antilatency libraries;
-./AntilatencySdk/Bin/<os>/<architecture> contains prebuilt libraries;
-./TrackingMinimalDemoCpp.cpp contains code of example.
+* ./AntilatencySdk/Api contains headers for Antilatency libraries;
+* ./AntilatencySdk/Bin/<os>/<architecture> contains prebuilt libraries;
+* ./TrackingMinimalDemoCpp.cpp contains code of example.
 
 ## Build on raspberry:
 1) Place project folder somewhere on the filesystem.
