@@ -38,4 +38,10 @@ TrackingMinimalDemo executable expects environment code as first argument and pl
 ### Linux example(execute in terminal): 
 `./TrackingMinimalDemo AntilatencyAltEnvironmentHorizontalGrid~AgZ5ZWxsb3cEBLhTiT_cRqA-r45jvZqZmT4AAAAAAAAAAACamRk_AQQAAQEBAwABAAADAQE AAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAA`
 
+ You may need to run TrackingMinimalDemo as root to work with USB devices (i.e. `sudo ./TrackingMinimalDemo ...`) or add rule for Antilatency USB devices:
+ 
+ `echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="3237", MODE="0666", GROUP="<group_name>"' | sudo tee /etc/udev/rules.d/66-antilatency.rules`
 
+ * where <group_name> is the name of the group to which the user who launches the application belongs. For example, on Raspberry Pi this commands looks like:
+ 
+ `echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="3237", MODE="0666", GROUP="pi"' | sudo tee /etc/udev/rules.d/66-antilatency.rules`
