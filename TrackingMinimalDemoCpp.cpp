@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
 
     // Load the Antilatency Alt Environment Selector library
     Antilatency::Alt::Environment::Selector::ILibrary environmentSelectorLibrary = Antilatency::InterfaceContract::getLibraryInterface<Antilatency::Alt::Environment::Selector::ILibrary>(libNameEnvironmentSelector.c_str());
-    if (altTrackingLibrary == nullptr) {
+    if (environmentSelectorLibrary == nullptr) {
         std::cout << "Failed to get Antilatency Alt Environment Selector Library" << std::endl;
         return 1;
     }
