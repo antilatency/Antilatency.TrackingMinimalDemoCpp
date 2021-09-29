@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
 		std::string libNameTracking = "AntilatencyAltTracking";
 		std::string libNameEnvironmentSelector = "AntilatencyAltEnvironmentSelector";
 	#endif
-	
+
     // Load the Antilatency Device Network library
     Antilatency::DeviceNetwork::ILibrary deviceNetworkLibrary = Antilatency::InterfaceContract::getLibraryInterface<Antilatency::DeviceNetwork::ILibrary>(libNameADN.c_str());
     if (deviceNetworkLibrary == nullptr) {
@@ -125,31 +125,27 @@ int main(int argc, char* argv[]) {
                             std::cout << "Tracking task finished" << std::endl;
                             break;
                         }
-                        
                         Antilatency::Alt::Tracking::State state = altTrackingCotask.getExtrapolatedState(placement, 0.03f);
 
                         std::cout << "State:" << std::endl;
-                        
                         std::cout << "\tPose:" << std::endl;
                         std::cout << "\t\tPosition: x: " << state.pose.position.x << ", y: " << state.pose.position.y << ", z: " << state.pose.position.z << std::endl;
                         std::cout << "\t\tRotation: x: " << state.pose.rotation.x << ", y: " << state.pose.rotation.y << ", z: " << state.pose.rotation.z  << ", w: " << state.pose.rotation.w << std::endl;
-                        
                         std::cout << "\tStability:" << std::endl;
                         std::cout << "\t\tStage: " << static_cast<int32_t>(state.stability.stage) << std::endl;
                         std::cout << "\t\tValue: " << state.stability.value << std::endl;
-                        
                         std::cout << "\tVelocity:" << state.velocity.x << ", y: " << state.velocity.y << ", z: " << state.velocity.z << std::endl;
 
                         std::cout << "\tLocalAngularVelocity: x:" << state.localAngularVelocity.x << ", y: " << state.localAngularVelocity.y << ", z: " << state.localAngularVelocity.z << std::endl << std::endl;
-                        
                         std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(500));
                     }
                 } else {
                     std::cout << "Failed to start tracking task on node" << std::endl;
                 }
             }
+        }else {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     }
-    
     return 0;
 }
