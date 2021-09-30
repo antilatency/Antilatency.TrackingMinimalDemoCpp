@@ -3,10 +3,8 @@
 #include <Antilatency.InterfaceContract.LibraryLoader.h>
 #include <Antilatency.DeviceNetwork.h>
 #if defined(__linux__)
-#include <dlfcn.h>
-#include <filesystem>
+	#include <dlfcn.h>
 #endif
-
 #include <thread>
 #include <chrono>
 
@@ -29,23 +27,39 @@ Antilatency::DeviceNetwork::NodeHandle getIdleTrackingNode(Antilatency::DeviceNe
     return Antilatency::DeviceNetwork::NodeHandle::Null;
 }
 
+
+#if defined(__linux__)
+std::string getParentPath(const char *inp){
+    auto len = strlen(inp);
+    if(len == 0) throw std::runtime_error("no parent path: " + std::string(inp));
+    int i = len - 1;
+    while(i > 0){
+        if(inp[i] == '/'){
+            return std::string(inp, inp + i + 1);
+        }
+        --i;
+    }
+    throw std::runtime_error("no parent path: " + std::string(inp));
+}
+#endif
+
 int main(int argc, char* argv[]) {
     if(argc != 3){
         std::cout << "Wrong arguments. Pass environment data string as first argument and placement data as second.";
         return 1;
     }
-	#if defined(__linux__)
+    #if defined(__linux__)
         Dl_info dlinfo;
         dladdr(reinterpret_cast<void*>(&main), &dlinfo);
-        std::string path = std::filesystem::path(dlinfo.dli_fname).parent_path();
+        std::string path = getParentPath(dlinfo.dli_fname);
         std::string libNameADN = path + "/libAntilatencyDeviceNetwork.so";
         std::string libNameTracking = path + "/libAntilatencyAltTracking.so";
         std::string libNameEnvironmentSelector = path + "/libAntilatencyAltEnvironmentSelector.so";
-	#else
-		std::string libNameADN = "AntilatencyDeviceNetwork";
-		std::string libNameTracking = "AntilatencyAltTracking";
-		std::string libNameEnvironmentSelector = "AntilatencyAltEnvironmentSelector";
-	#endif
+    #else
+        std::string libNameADN = "AntilatencyDeviceNetwork";
+        std::string libNameTracking = "AntilatencyAltTracking";
+        std::string libNameEnvironmentSelector = "AntilatencyAltEnvironmentSelector";
+    #endif
 
     // Load the Antilatency Device Network library
     Antilatency::DeviceNetwork::ILibrary deviceNetworkLibrary = Antilatency::InterfaceContract::getLibraryInterface<Antilatency::DeviceNetwork::ILibrary>(libNameADN.c_str());
