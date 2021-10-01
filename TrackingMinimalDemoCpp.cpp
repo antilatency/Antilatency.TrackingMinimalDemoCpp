@@ -3,10 +3,8 @@
 #include <Antilatency.InterfaceContract.LibraryLoader.h>
 #include <Antilatency.DeviceNetwork.h>
 #if defined(__linux__)
-#include <dlfcn.h>
-#include <filesystem>
+	#include <dlfcn.h>
 #endif
-
 #include <thread>
 #include <chrono>
 
@@ -29,24 +27,40 @@ Antilatency::DeviceNetwork::NodeHandle getIdleTrackingNode(Antilatency::DeviceNe
     return Antilatency::DeviceNetwork::NodeHandle::Null;
 }
 
+
+#if defined(__linux__)
+std::string getParentPath(const char *inp){
+    auto len = strlen(inp);
+    if(len == 0) throw std::runtime_error("no parent path: " + std::string(inp));
+    int i = len - 1;
+    while(i > 0){
+        if(inp[i] == '/'){
+            return std::string(inp, inp + i + 1);
+        }
+        --i;
+    }
+    throw std::runtime_error("no parent path: " + std::string(inp));
+}
+#endif
+
 int main(int argc, char* argv[]) {
     if(argc != 3){
         std::cout << "Wrong arguments. Pass environment data string as first argument and placement data as second.";
         return 1;
     }
-	#if defined(__linux__)
+    #if defined(__linux__)
         Dl_info dlinfo;
         dladdr(reinterpret_cast<void*>(&main), &dlinfo);
-        std::string path = std::filesystem::path(dlinfo.dli_fname).parent_path();
+        std::string path = getParentPath(dlinfo.dli_fname);
         std::string libNameADN = path + "/libAntilatencyDeviceNetwork.so";
         std::string libNameTracking = path + "/libAntilatencyAltTracking.so";
         std::string libNameEnvironmentSelector = path + "/libAntilatencyAltEnvironmentSelector.so";
-	#else
-		std::string libNameADN = "AntilatencyDeviceNetwork";
-		std::string libNameTracking = "AntilatencyAltTracking";
-		std::string libNameEnvironmentSelector = "AntilatencyAltEnvironmentSelector";
-	#endif
-	
+    #else
+        std::string libNameADN = "AntilatencyDeviceNetwork";
+        std::string libNameTracking = "AntilatencyAltTracking";
+        std::string libNameEnvironmentSelector = "AntilatencyAltEnvironmentSelector";
+    #endif
+
     // Load the Antilatency Device Network library
     Antilatency::DeviceNetwork::ILibrary deviceNetworkLibrary = Antilatency::InterfaceContract::getLibraryInterface<Antilatency::DeviceNetwork::ILibrary>(libNameADN.c_str());
     if (deviceNetworkLibrary == nullptr) {
@@ -125,31 +139,27 @@ int main(int argc, char* argv[]) {
                             std::cout << "Tracking task finished" << std::endl;
                             break;
                         }
-                        
                         Antilatency::Alt::Tracking::State state = altTrackingCotask.getExtrapolatedState(placement, 0.03f);
 
                         std::cout << "State:" << std::endl;
-                        
                         std::cout << "\tPose:" << std::endl;
                         std::cout << "\t\tPosition: x: " << state.pose.position.x << ", y: " << state.pose.position.y << ", z: " << state.pose.position.z << std::endl;
                         std::cout << "\t\tRotation: x: " << state.pose.rotation.x << ", y: " << state.pose.rotation.y << ", z: " << state.pose.rotation.z  << ", w: " << state.pose.rotation.w << std::endl;
-                        
                         std::cout << "\tStability:" << std::endl;
                         std::cout << "\t\tStage: " << static_cast<int32_t>(state.stability.stage) << std::endl;
                         std::cout << "\t\tValue: " << state.stability.value << std::endl;
-                        
                         std::cout << "\tVelocity:" << state.velocity.x << ", y: " << state.velocity.y << ", z: " << state.velocity.z << std::endl;
 
                         std::cout << "\tLocalAngularVelocity: x:" << state.localAngularVelocity.x << ", y: " << state.localAngularVelocity.y << ", z: " << state.localAngularVelocity.z << std::endl << std::endl;
-                        
                         std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(500));
                     }
                 } else {
                     std::cout << "Failed to start tracking task on node" << std::endl;
                 }
             }
+        }else {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     }
-    
     return 0;
 }
