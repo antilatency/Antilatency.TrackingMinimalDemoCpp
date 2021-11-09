@@ -7,6 +7,14 @@ Structure:
 * ./AntilatencySdk/Bin/<os>/<architecture> contains prebuilt libraries;
 * ./TrackingMinimalDemoCpp.cpp contains code of example.
 
+## Getting started
+
+This repository links to the AntilatencySDK with a submodule, do not forget
+to run `git submodule update` after `git clone`. Or use the following command
+to get everything at once:
+
+`git clone --recurse-submodules --shallow-submodules https://github.com/antilatency/Antilatency.TrackingMinimalDemoCpp`
+
 ## Build on raspberry:
 1) Place project folder somewhere on the filesystem.
 2) Execute in terminal:
