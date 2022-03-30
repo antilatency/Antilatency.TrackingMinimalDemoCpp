@@ -5,7 +5,7 @@ include_directories(${CMAKE_SOURCE_DIR}/AntilatencySdk/Api)
 add_executable(TrackingMinimalDemo TrackingMinimalDemoCpp.cpp)
 
 if (WIN32)
-    file(GLOB ANTILATENCY_LIBS ${CMAKE_SOURCE_DIR}/AntilatencySdk/Bin/Windows/x64/*.dll)
+    file(GLOB ANTILATENCY_LIBS ${CMAKE_SOURCE_DIR}/AntilatencySdk/Bin/WindowsDesktop/x64/*.dll)
 endif (WIN32)
 if (UNIX)
     target_link_libraries(TrackingMinimalDemo dl stdc++fs pthread)
