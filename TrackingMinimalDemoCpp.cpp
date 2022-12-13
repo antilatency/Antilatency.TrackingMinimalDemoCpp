@@ -93,9 +93,9 @@ int main(int argc, char* argv[]) {
     std::cout << "Antilatency Device Network created" << std::endl;
 
     // Get environment serialized data.
-    const std::string environmentData = "AntilatencyAltEnvironmentHorizontalGrid~AgdjZWlsaW5nCwsIBV8_zczMPiaOzr2amZk-AAAAAAEK13NAmpkZPwAQCgIDCQMDBgAABgIAAwMDAgACAAMDAAcDAgoCBQoCCAoABwgDCgcDBgYDBAUCAwcC";
+    const std::string environmentData = argv[1];
     // Get placement serialized data.
-    const std::string placementData = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+    const std::string placementData = argv[2];
 
     // Create environment object from the serialized data.
     const Antilatency::Alt::Environment::IEnvironment environment = environmentSelectorLibrary.createEnvironment(environmentData);
